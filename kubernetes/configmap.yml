@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: url-shortner-configmap
+data:
+  MONGO_INITDB_DATABSE: "test-db"
+  APP_EPIRATION_TIME: "30"
+  APP_PORT_NUM: "80"

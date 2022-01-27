@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: url-shorner-dep
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: url-shorner
+  template:
+    metadata:
+      labels:
+        app: url-shorner
+    spec:
+      containers:
+      - name: url-shorner
+        image: mirzaim/url-shortner:1.0
+        imagePullPolicy: "Always"
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80  # Have to match with time-server-configmap
+        env:
+          - name: MONGO_INITDB_DATABSE
+            valueFrom:
+              configMapKeyRef:
+                name: url-shortner-configmap
+                key: MONGO_INITDB_DATABSE
+          - name: APP_EPIRATION_TIME
+            valueFrom:
+              configMapKeyRef:
+                name: url-shortner-configmap
+                key: APP_EPIRATION_TIME
+          - name: APP_PORT_NUM
+            valueFrom:
+              configMapKeyRef:
+                name: url-shortner-configmap
+                key: APP_PORT_NUM
+          - name: MONGO_INITDB_ROOT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: url-shorner-secret
+                key: username
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: url-shorner-secret
+                key: password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: url-shorner-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: url-shorner
+  ports:
+  - port: 80
+    targetPort: 80
